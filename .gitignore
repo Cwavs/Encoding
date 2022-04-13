@@ -156,3 +156,15 @@ cython_debug/
 *.mp4
 *.mkv
 *.iso
+
+#VS Preview
+/.vspreview
+/vapoursynth-preview
+
+#EOEFunc
+/EOEfunc
+
+FSRCNNX_x2_16-0-4-1.glsl
+
+#n++ backups
+*.bak
