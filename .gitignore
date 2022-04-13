@@ -152,4 +152,4 @@ cython_debug/
 #.idea/
 
 #Video Files
-/*.m2ts
+.m2ts
