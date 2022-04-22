@@ -13,9 +13,9 @@ src = lvf.src(src_file)
 cropped = core.std.Crop(src, left = 240, right = 240)
 
 #Create reference denoised image with KNLM
-denoised_ref = core.knlm.KNLMeansCL(cropped, 10, 10, 4)
+denoised_ref = core.knlm.KNLMeansCL(cropped)
 #Denoise fully with EOE's BM3D wrapper
-denoised = eoe.denoise.BM3D(cropped, ref=denoised_ref, radius=2, fast=False)
+denoised = eoe.denoise.BM3D(cropped, ref=denoised_ref, radius=2)
 
 #Create adaptive grain mask from the denoised version
 mask = kaf.adaptive_grain(denoised, static=True, show_mask=True)
@@ -30,8 +30,8 @@ regrain = vsutil.join(
 u,
 v])
 
-#Set outputs (sending denoised, regrained and cropped for easy comparision on vspreview
-regrain.set_output(0)
+#Set outputs (sending denoised, regrained and cropped for easy comparision on vspreview)
+denoised_ref.set_output(0)
 regrained.set_output(1)
 denoised.set_output(2)
 cropped.set_output(3)

@@ -1,0 +1,1 @@
+vspipe Gankutsuou.vpy -c y4m - | x265 --output-depth 10 --preset slow --crf 14.5 --y4m -o out.265 -

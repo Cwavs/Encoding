@@ -156,6 +156,8 @@ cython_debug/
 *.mp4
 *.mkv
 *.iso
+*.265
+*.264
 
 #VS Preview
 /.vspreview
@@ -168,3 +170,19 @@ FSRCNNX_x2_16-0-4-1.glsl
 
 #n++ backups
 *.bak
+
+#Index files
+*.lwi
+*.ffindex
+
+#Images
+*.png
+
+Config files
+*.yml
+*.xml
+
+#get_native results
+*/results
+
+bitrate_filesize.py
