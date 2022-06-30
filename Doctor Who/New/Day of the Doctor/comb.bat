@@ -1,0 +1,1 @@
+ffmpeg -i output.264 -f yuv4mpegpipe - | x265 --crf 20 --y4m -o out.265 -

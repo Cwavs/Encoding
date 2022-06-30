@@ -1,1 +1,1 @@
-vspipe "Space Dandy.vpy" -c y4m - | x265 --y4m --log-level 2 --preset slow --output-depth 10 --crf 13  -o out.265 -
+vspipe "Space Dandy.vpy" -c y4m - | x265 --y4m --log-level 2 --preset slow --output-depth 10 --tune grain --crf 14.5  -o out.265 -

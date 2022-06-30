@@ -1,0 +1,1 @@
+ffmpeg -i out.264 -f yuv4mpegpipe - | x264 --preset slow --crf 13 --tune grain --demuxer y4m -o out.264 -

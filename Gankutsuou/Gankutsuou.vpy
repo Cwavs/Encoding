@@ -19,7 +19,7 @@ denoised = eoe.denoise.BM3D(src, sigma=1)
 deband = fvf.GradFun3(denoised, smode=2, thr=1)
 
 final = vsutil.depth(deband, 10)
-grain = kgf.adaptive_grain(final)
+grain = kgf.adaptive_grain(final, static=True)
 
 #Set outputs
 grain.set_output(0)

@@ -1,0 +1,1 @@
+for /l %%x in (4, 1, 4) do vspipe "Planetes Episode 1.vpy" -a fragment=%%x -c y4m - | x264 --preset ultrafast --qp 0 --demuxer y4m -o "D:\PlanetesFrag\fragment%%x.264" -

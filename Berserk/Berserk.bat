@@ -1,1 +1,1 @@
-vspipe Berserk.vpy -c y4m - | x265 --y4m --tune grain --log-level 2 --preset slow --output-depth 10 --crf 13 -o out.265 -
+vspipe Berserk.vpy -c y4m - | x265 --y4m --tune grain --log-level 2 --preset slow --crf 20 -o out.265 -

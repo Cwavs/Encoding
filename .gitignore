@@ -186,3 +186,13 @@ Config files
 */results
 
 bitrate_filesize.py
+*.VOB
+*.opus
+*.d2v
+*.ac3
+havsfunc/
+lvsfunc/
+rvsfunc/
+*.svg
+*.txt
+vs-preview/

@@ -1,0 +1,1 @@
+vspipe dotd.vpy -c y4m -a fragment=5 - | x264 --preset ultrafast --qp 0 --demuxer y4m -o "D:\\New folder (3)\\fragment5.264" -

@@ -1,1 +1,0 @@
-vspipe Brittas.vpy -c y4m - | x265 --preset slow --crf 8 --y4m -o britout.265 -

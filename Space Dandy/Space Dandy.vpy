@@ -5,6 +5,7 @@ import kagefunc as kgf
 import fvsfunc as fvf
 import EoEfunc as eoe
 import awsmfunc as awf
+import vardefunc as var
 core = vs.core
 
 #Load Source file
@@ -15,6 +16,8 @@ src = lvf.src(src_file)
 
 src = fvf.Depth(src, 16)
 
+src = awf.bbmod(src, top=1, bottom=1, left=1, right=1)
+
 y, u, v = kgf.split(src)
 height = 720
 width = vsutil.get_w(height)
@@ -22,19 +25,27 @@ width = vsutil.get_w(height)
 descale = core.descale.Debilinear(y, width, height)
 descaleM = fvf.DebilinearM(y, width, height)
 descale = core.remap.Rfs(descale, descaleM, mappings="[0 3202] [32262 34418]")
-u, v = u.resize.Bicubic(width, height, filter_param_a=0, filter_param_b=1), v.resize.Bicubic(width, height, filter_param_a=0, filter_param_b=1)
-descale_catmull = kgf.join([descale, u, v])
+#descale = awf.bbmod(descale, top=4, bottom=4, right=4, left=4, blur=999, thresh=10)
+resizeda = var.scale.nnedi3cl_double(descale)
+resizedb = resizeda.resize.Bicubic(1920, 1080, filter_param_a=0, filter_param_b=0)
 
-denoised = eoe.denoise.BM3D(descale_catmull)
+descaled = kgf.join([resizedb, u, v])
+
+denoised = eoe.denoise.BM3D(descaled)
 
 deband = fvf.GradFun3(denoised)
 
-final = vsutil.depth(deband, 10)
-grain = kgf.adaptive_grain(final, static=True)
+linemask = kgf.retinex_edgemask(src)
+
+merged = core.std.MaskedMerge(deband, src, linemask)
+
+final = vsutil.depth(merged, 10)
+grain = kgf.adaptive_grain(final, static=True, strength=1)
 
 #Set outputs (sending denoised, regrained and cropped for easy comparision on vspreview)
 grain.set_output(0)
-descale.set_output(1)
-descale_catmull.set_output(2)
+merged.set_output(1)
+deband.set_output(2)
 denoised.set_output(3)
-src.set_output(4)
+resizedb.set_output(4)
+src.set_output(5)
