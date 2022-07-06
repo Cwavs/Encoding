@@ -196,3 +196,4 @@ rvsfunc/
 *.svg
 *.txt
 vs-preview/
+.vscode/
