@@ -197,3 +197,17 @@ rvsfunc/
 *.txt
 vs-preview/
 .vscode/
+*.dll
+vs-aa/
+vs-debandshit/
+vs-dehalo/
+vs-dfft/
+vs-engine/
+vs-exprtools/
+vs-kernels/
+vs-parsedvd/
+vs-scale/
+vsmask/
+descale/
+jvsfunc/
+*.dgi

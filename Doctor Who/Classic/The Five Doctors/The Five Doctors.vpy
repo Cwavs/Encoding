@@ -1,126 +1,35 @@
 import vapoursynth as vs
 import lvsfunc as lvf
-from lvsfunc.types import Position, Size
-from typing import Tuple, List
-import fvsfunc as fvf
 import havsfunc as haf
-import EoEfunc as eoe
-import kagefunc as kgf
-import awsmfunc as awf
-import vardefunc as var
-import rvsfunc as rvf
-import vsutil
 from vsmlrt import DPIR, DPIRModel, Backend
-
-rainbowed_frames: List[Tuple[int, int, Position, Size]] = [
-    (100, -1, (500, 500), (8, 8)),
-    (200, 1, (300, 160), (16, 16)),
-    (200, 1, (800, 300), (16, 16)),
-    ]
-
-def sqmask_rainbows(clip: vs.VideoNode, frame: int, rel_clean: int = -1,
-                pos: Position = (0, 0), size: Size = (2, 2), **kwargs
-                ) -> vs.VideoNode:
-    """
-    Simple sqmasking function for fixing rainbowing.
-    Allows you to pass a relative frame using ``rel_clean`` to square mask an area.
-    Follows ``BoundingBox`` logic, so check the docs for more info.
-    :param clip:        Clip to process.
-    :param frame:       Frame number.
-    :param rel_clean:   Relative clean frame position. Relative to ``frame``.
-                        For example, `rel_clean=-1` will grab the frame before it.
-    :param pos:         Mask position. See ``BoundingBox``.
-    :param size:        Mask size. See ``BoundingBox``.
-    :param kwargs:      Additional args to pass to replace_ranges.    
-    :return:            Masked clip.
-    """
-    from lvsfunc import replace_ranges, BoundingBox
-    sqmask = BoundingBox(pos, size).get_mask(clip)
-    clean = core.std.MaskedMerge(clip[frame], clip[frame+rel_clean], sqmask)
-    clean = clean * clip.num_frames  # If `replace_ranges` errors, try adding `-1` behind `num_length` here.
-    return replace_ranges(clip, clean, [frame], **kwargs)
-
-def RainbowSmooth(clip, radius=3, lthresh=0, hthresh=220, mask="original"):
-    core = vs.core
-    
-    if isinstance(mask, str):
-        if mask == "original":
-            mask = core.std.Expr(clips=[clip.std.Maximum(planes=0), clip.std.Minimum(planes=0)], expr=["x y - 90 > 255 x y - 255 90 / * ?", "", ""])
-        elif mask == "prewitt":
-            mask = core.std.Prewitt(clip=clip, planes=0)
-        elif mask == "sobel":
-            mask = core.std.Sobel(clip=clip, planes=0)
-        elif mask == "tcanny":
-            mask = core.tcanny.TCanny(clip)
-        elif mask == "fast_sobel":
-            import kagefunc as kage
-
-            mask = kage.fast_sobel(clip)
-        elif mask == "kirsch":
-            import kagefunc as kage
-
-            mask = kage.kirsch(clip)
-        elif mask == "retinex_edgemask":
-            import kagefunc as kage
-
-            mask = kage.retinex_edgemask(clip)
-
-    lderain = clip
-
-    if lthresh > 0:
-        lderain = clip.smoothuv.SmoothUV(radius=radius, threshold=lthresh, interlaced=False)
-
-    hderain = clip.smoothuv.SmoothUV(radius=radius, threshold=hthresh, interlaced=False)
-
-    if hthresh > lthresh:
-        return core.std.MaskedMerge(clipa=lderain, clipb=hderain, mask=mask, planes=[1, 2], first_plane=True)
-    else:
-        return lderain
+import EoEfunc as eoe
+import vsutil
 
 core = vs.core
 
-src_file = "VTS_02_1.d2v"
+src_file = "remaster.dgi"
 src = lvf.src(src_file)
+src = vsutil.depth(src, 16)
 
-deint = haf.QTGMC(src, "Placebo")
+interlacedScenes = "[3364 4773] [6112 9117] [12248 13295] [14656 15887] [26778 27643] [31036 31707] [42542 44059] [45088 73201] [82250 83945] [86064 95747] [99772 101903] [111594 112529] [113090 114695] [118218 120285] [121958 123583] [133836 133971] [135640 136651] [137984 145961] [150552 151879] [159528 160309] [161470 169283] [177844 178941] [185928 188077] [194088 213555] [213744 220345] [220548 223025] [223174 244449] [245652 255701] [256544 281443] [281754 298153]"
 
-print(deint.num_frames)
+hartnellScene = "[0 1063]"
 
-dep = vsutil.depth(deint, 16)
+specialEffects = "[14142 14219] [14300 14359] [14410 14643] [25446 25999] [26412 26467] [26566 26773] [29454 29525] [30062 30161] [30738 31031] [42266 42501] [44856 45063] [111266 111275] [111340 111353] [111424 111435] [281444 281609]"
 
-denoisedRef = core.knlm.KNLMeansCL(dep, d=10, a=10, s=8, h=3)
-denoised = eoe.denoise.BM3D(dep, ref=denoisedRef, sigma=1)
-denoised2 = eoe.denoise.BM3D(dep, ref=denoisedRef, sigma=20, profile='vn')
+interlaced = core.nnedi3.nnedi3(src, 3)
+specialEffect = haf.ChangeFPS(core.nnedi3.nnedi3(src, 1), 50)
+prog = haf.ChangeFPS(src, 50)
+hartnell = core.nnedi3.nnedi3(src, 3)
 
-mask = kgf.adaptive_grain(denoised2, static=True, show_mask=True, luma_scaling=100)
+deint = core.remap.Rfs(prog, interlaced, mappings=interlacedScenes)
+deint = core.remap.Rfs(deint, specialEffect, mappings=specialEffects)
 
-denoisedFinal = core.std.MaskedMerge(denoised, denoised2, mask)
+deblock = DPIR(deint.resize.Bicubic(format=vs.RGBS, matrix_in=5, transfer_in=5, primaries_in=5, range=0).std.Limiter(), strength=50, model=DPIRModel.drunet_deblocking_color, backend=Backend.ORT_CUDA()).resize.Bicubic(format=vs.YUV420P16, matrix=5, transfer=5, primaries=5, range=0).std.Limiter()
 
-aa = lvf.aa.upscaled_sraa(denoisedFinal)
+denRef = core.knlm.KNLMeansCL(deblock, d=10, a=10, s=8)
+den = eoe.denoise.BM3D(deblock, ref=denRef, sigma=3, profile="vn").remap.Rfs(hartnell, mappings=hartnellScene)
 
-derainbow = aa
-
-#for f in rainbowed_frames:
-    #derainbow = sqmask_rainbows(aa, f[0], f[1], f[2], f[3])
-
-crop = core.std.Crop(aa, left=10, right=8, bottom=2)
-
-final = vsutil.depth(crop, 8)
-final = kgf.adaptive_grain(final, static=True)
-
-#fragment = 1
-frag_size = 2713
-fs = (int(fragment) - 1) * frag_size
-fe = fs + frag_size
-chunk = final[fs:fe]
-
-chunk.set_output(0)
-
-
-aa.set_output(1)
-denoisedFinal.set_output(2)
-dep.set_output(3)
-deint.set_output(4)
-src.set_output(5)
-mask.set_output(6)
-
+src.set_output(0)
+deint.set_output(1)
+den.set_output(2)

@@ -1,0 +1,1 @@
+for /l %%x in (3, 1, 3) do vspipe gits.vpy -a fragment=%%x -c y4m - | x264 --input-depth 10 --output-depth 10 --preset ultrafast --qp 0 --demuxer y4m -o "D:\New folder (2)\fragment%%x.264" -
