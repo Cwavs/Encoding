@@ -1,0 +1,4 @@
+vspipe "Episode 1.vpy" -o 2 -c y4m - | x265 --y4m --preset veryslow --no-open-gop --no-cutree --rskip 0 --ctu 64 --min-cu-size 8 --rdoq-level 2 --max-merge 5 --rc-lookahead 60 --ref 6 --bframes 16 --rd 3 --subme 5 --merange 57 --high-tier --range limited --aud --repeat-headers --output-depth 10 --cbqpoffs 0 --crqpoffs 0 --qcomp 0.7 --aq-mode 5 --aq-strength 0.65 --deblock -1:-1 --ipratio 1.20 --pbratio 1.10 --psy-rd 1.40 --psy-rdoq 1.00 --no-sao --no-strong-intra-smoothing --crf 16 -o out.265 -
+ffmpeg -i "D:\LE COMTE DE MONTE CRISTO VOL1\BDMV\STREAM\00000 PID 1100 L+R 48 1536 DELAY 0ms.dts" -b:a 320k -c:a libopus "Japanese Stereo.opus"
+ffmpeg -i "D:\LE COMTE DE MONTE CRISTO VOL1\BDMV\STREAM\00000 PID 1101 L+R 48 1536 DELAY 0ms.dts" -b:a 320k -c:a libopus "French Stereo.opus"
+ffmpeg -i "D:\LE COMTE DE MONTE CRISTO VOL1\BDMV\STREAM\00000 PID 1102 L+R 48 1536 DELAY 0ms.dts" -b:a 320k -c:a libopus "English Stereo.opus"
