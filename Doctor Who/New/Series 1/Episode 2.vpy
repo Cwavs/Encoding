@@ -1,6 +1,6 @@
 import vapoursynth as vs
 from vsutil import depth
-from vstools import set_output
+from vstools import set_output, get_y
 from vsdeband import PlaceboGrain as grain
 from rekt.rektlvls import rektlvls
 
@@ -33,7 +33,7 @@ deComb = src.nnedi3cl.NNEDI3CL(1)
 #Theres some blocking and chroma noise from the compression of already fairly bad noise due to this being a Betamax show.
 den = denLuma(deComb)
 
-dirtyLines = rektlvls(den.std.Crop(24, 22, 0, 0), colnum=[0, 1, 2, 3, 4, 5, 1865, 1866, 1867, 1868, 1689, 1870, 1871, 1872, 1873], colval=[80, 63, 43, 25, 11, 4, -1, 1, -1, 0, 0, 0, 0, 0, 0])
+dirtyLines = rektlvls(den.std.Crop(24, 24, 2, 0), colnum=[0, 1, 2, 3, 4, 5, 1866, 1867, 1868, 1869, 1870, 1871], colval=[80, 63, 43, 25, 11, 4, 2, 8, 20, 35, 55, 74], rownum=[0, 1, 2, 1073, 1074, 1075, 1076], rowval=[69, 15, -3, -6, -10, 10, 29])
 
 #Apply some graining to cover for me being a terrible encoder
 grainedIntro = grain(strength=(2, 0), luma_scaling=0).grain(dirtyLines)
@@ -48,4 +48,4 @@ set_output(deComb)
 set_output(den)
 set_output(dirtyLines)
 set_output(grained)
-set_output(final[64786:])
+set_output(final)

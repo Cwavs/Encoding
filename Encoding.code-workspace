@@ -1,8 +1,20 @@
 {
 	"folders": [
 		{
-			"path": "../../.."
+			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"type": "debugpy",
+				"name": "Preview Filters",
+				"request": "launch",
+				"module": "vspreview",
+				"args": ["${file}"]
+			}
+		]
+	}
 }

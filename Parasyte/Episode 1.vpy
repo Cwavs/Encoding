@@ -1,18 +1,11 @@
-import vapoursynth as vs
-from vstools import set_output, depth, get_y
-from vsscale import descale
-from vskernels import RobidouxSharp
+from vstools import vs, core, set_output
+from vsmuxtools import Setup, src_file
 
-core = vs.core
+setup = Setup("01", bdmv_dir="E:\\Parasyte BD-1\\BDMV", show_name="Parasyte: The Maxim")
 
-src = core.dgdecodenv.DGSource("E:\\Parasyte BD-1\\BDMV\\STREAM\\00006.dgi")
+sBD = src_file("E:\\Parasyte BD-1\\BDMV\\STREAM\\00006.dgi")
 
-src = depth(get_y(src), 16)
-
-descaled = descale(src, height=[960], kernels=[RobidouxSharp], result=True)
-rescaled = descaled.rescaled
-descaled = descaled.descaled
+src = sBD.init()
+aSrc = sBD.get_audio()
 
 set_output(src)
-set_output(descaled)
-set_output(rescaled)
